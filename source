@@ -1,1 +1,77 @@
+import math
+class key_creator:
+    def __init__(self, p, q, e):
+        self.n = p * q
+        self.e = e
+        self.Eular = (p - 1) * (q - 1)
+        self.PublicKey = 0
+        self.PrivateKey = 0
+        self.PublickeyGen()
+        self.PrivateKeyGen()
 
+    def PublickeyGen(self):
+        self.PublicKey = (self.e, self.n)
+
+    def PrivateKeyGen(self):
+        self.d = self.find_d(self.e, self.Eular)
+        self.PrivateKey = (self.d, self.n)
+
+    def find_d(self, e, phi_n):
+        Q1 = Q2 = self.Eular
+        E1 = e
+        E2 = 1
+        t1 = t2 = 0
+        A = 0
+
+        while E1 != 1:
+            A = Q1 // E1
+            t1 = E1
+            t2 = E2
+            E1 = Q1 - (E1 * A)
+            if E1 < 0:
+                E1 = self.Eular - (abs(E1) % self.Eular)
+            E2 = Q2 - (E2 * A)
+            if E2 < 0:
+                E2 = self.Eular - (abs(E2) % self.Eular)
+            Q1 = t1
+            Q2 = t2
+
+        return E2
+
+
+
+# text converter 
+class convertor:
+    def __init__(self):
+        self.Message = ""
+        self.crypted = ""
+
+    def encrypt(self, M, e, n):
+        for c in M:
+            m = ord(c)
+            self.crypted += chr(int((m ** e) % n))
+
+    def decrypt(self, C, d, n):
+        for c in C:
+            m = ord(c)
+            self.Message += chr(int((m ** d) % n))
+
+
+
+
+#1.  make the key pair
+#2.  insert the undecrypted message
+#3. decrypt the message
+
+MYkey = key_creator(13, 17, 35)
+print("THE PUBLIC KEY IS  :", MYkey.PublicKey)
+print("THE PRIVATE KEY IS :", MYkey.PrivateKey)
+
+text1 = "227946120"
+con1 = convertor()
+con1.encrypt(text1, MYkey.e, MYkey.n)
+print("ENCRYPTED TEXT IS  :", con1.crypted)
+
+con2 = convertor()
+con2.decrypt(con1.crypted, MYkey.d, MYkey.n)
+print("DECRYPTED TEXT IS  :", con2.Message)
